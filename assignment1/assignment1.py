@@ -1,20 +1,27 @@
 import sys
 import csv
 import string
+import re
 from nltk.tokenize import TweetTokenizer
 
 class Index:
+    """
+    This data structure is the value of the indices dictionary
+    """
     def __init__(self, size, pointer2postingsList):
         self.size = size
         self.pointer2postingsList = pointer2postingsList
 
 class PostingNode:
+    """
+    Linked list for the postings list
+    """
     def __init__(self, val):
         self.val = val
         self.next = None
 
 class TwitterIR(object):
-    __slots__ = 'id2doc', 'tokenizer', 'unicodes2remove', 'indices'
+    __slots__ = 'id2doc', 'tokenizer', 'unicodes2remove', 'indices', 'urlregex'
 
     def __init__(self):
         self.id2doc = {}
@@ -28,8 +35,14 @@ class TwitterIR(object):
             u'\u30a0', u'\ufe31', u'\ufe32', u'\ufe58', u'\ufe63', u'\uff0d'
         ]
         self.indices = {}
+        self.urlregex = re.compile('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
 
     def initId2doc(self, path):
+        """
+
+        :param path:
+        :return:
+        """
         with open(path, 'r', encoding='utf-8', newline='') as f:
             r = csv.reader(f, delimiter='\t')
             for line in r:
@@ -37,9 +50,11 @@ class TwitterIR(object):
         f.close()
 
     def clean(self, s):
-        s = s.translate(str.maketrans('', '', string.punctuation + string.digits))
+        s = self.urlregex.sub('', s).strip()
+        s = s.translate(str.maketrans('', '', string.punctuation + string.digits)).strip()
         for u2r in self.unicodes2remove:
             s = s.replace(u2r, '')
+        s = ' '.join(s.split())
         s = s.lower()
         s = self.tokenizer.tokenize(s)
         return s
