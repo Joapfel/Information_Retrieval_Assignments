@@ -7,8 +7,9 @@ class SpellChecker(object):
             'german': open('germandic-utf8.sec', 'r').read().splitlines()}
 
     def __init__(self, lang_vocab: list, fdist: dict = None, max_edit_distance: int = 2):
-        self.lang_vocab = {letter: [word.lower() for word in lang_vocab if word.startswith(letter)]
-                for letter in ascii_lowercase}
+        alphabet = 'aäbcdefghijklmnoöpqrsßtuüvwxyz'
+        self.lang_vocab = {letter: [word.lower() for word in lang_vocab \
+            if word.lower().startswith(letter)] for letter in alphabet}
         self.fdist = fdist
         self.max_edit_distance = max_edit_distance
         
@@ -26,7 +27,7 @@ class SpellChecker(object):
     def word_probability(self, word: str) -> int: 
         """Divides the frequency of a word by overall token count."""
         try:
-            return self.fdist[word] / len(self.fdist.keys())
+            return self.fdist[word.lower()] / len(self.fdist.keys())
         except KeyError:
             return 0.0
 
@@ -34,14 +35,14 @@ class SpellChecker(object):
         return max(self.candidates(word), key=self.word_probability)
 
     def candidates(self, word: str) -> tuple:
-        return (self.known([word]) or                       # word if it is known
-                self.known(self.edit_distance1(word)) or    # known words with edit distance 1
-                self.known(self.edit_distance2(word)) or    # known words with edit distance 2
-                (word))                                     # word, unknown
+        return (self.known([word.lower()]) or                       # word if it is known
+                self.known(self.edit_distance1(word.lower())) or    # known words with edit distance 1
+                self.known(self.edit_distance2(word.lower())) or    # known words with edit distance 2
+                [word])                                     # word, unknown
 
     def known(self, words: list) -> set:
         return set(w for w in words if len(w) > 1 \
-            and w in self.lang_vocab[w[0].lower()])
+            and w.lower() in self.lang_vocab[w[0].lower()])
 
     @staticmethod
     def edit_distance1(word: str) -> set:
