@@ -32,7 +32,9 @@ class SpellChecker(object):
             return 0.0
 
     def spell_check(self, word: str) -> str:
-        return max(self.candidates(word), key=self.word_probability)
+        # return max(self.candidates(word), key=self.word_probability)
+        cans = self.candidates(word)
+        if cans: return list(cans)[0]
 
     def candidates(self, word: str) -> tuple:
         return (self.known([word.lower()]) or                       # word if it is known
