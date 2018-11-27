@@ -2114,9 +2114,6 @@ fragt	980
 Detective	980
 President	979
 Beweis	979
-User:Matthias	979
-frequency	Buchmeier/German
-975	list-1-5000/
 975	wichtiger
 975	weinen
 973	Nächste
